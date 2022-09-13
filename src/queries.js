@@ -68,33 +68,27 @@ const getPatientDataFromAthena = async (cursor) => {
     //     console.log("ERROR", err);
     //   });
 
-    const data12 = await axios
+    const dataFromEthena = await axios
       .get(`https://api.preview.platform.athenahealth.com/v1/195900/patients`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: { suffix: "Mr." },
       })
       .then((data) => {
-        //console.log("DATA!!!!!!!", data.data);
         return data.data;
       })
       .catch(function (err) {
         console.log("ERROR", err);
       });
 
-    return data12;
-    //console.log("DATA12" , data12);
+    return dataFromEthena;
   });
 };
 
 const getPatient = (cursor) => {
-  console.log("INSIDE getPatient");
-  const sQuery = "SELECT * FROM testProject.patient";
-  console.log("sQuery", sQuery);
+  const sQuery = "SELECT * FROM testProject.testPatient";
   try {
-    console.log("INSIDE TRY BLOCK");
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-    console.log("Fetched Rows Count: " + fetchedRows);
     return fetchedRows;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -113,7 +107,7 @@ const addPatient = async (req, res, cursor) => {
           `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-            params: { suffix: "Mr." },
+            params: { suffix: "Mr."},
           }
         )
         .then((data) => {
@@ -142,28 +136,9 @@ const addPatient = async (req, res, cursor) => {
   }
 };
 
-const getPatientById = `SELECT * FROM patientbasicinfo INNER JOIN patientfollowupappointments ON
-  patientbasicinfo.patient_id = patientfollowupappointments.patient_id
-  INNER JOIN patientbreastfeeding
-  ON
-  patientbasicinfo.patient_id = patientbreastfeeding.patient_id
-  INNER JOIN patientpsychosocialassess
-  ON
-  patientbasicinfo.patient_id = patientpsychosocialassess.patient_id
-  INNER JOIN patientsafespacing
-  ON
-  patientbasicinfo.patient_id = patientsafespacing.patient_id
-  INNER JOIN patientvisit
-  ON
-  patientbasicinfo.patient_id = patientvisit.patient_id
-  INNER JOIN patienteducationalmaterial
-  ON
-  patientbasicinfo.patient_id = patienteducationalmaterial.patient_id
-  WHERE patientfollowupappointments.patient_id = $1`;
 
 module.exports = {
   getPatient,
   addPatient,
-  getPatientById,
   getPatientDataFromAthena,
 };

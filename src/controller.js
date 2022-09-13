@@ -20,5 +20,4 @@ module.exports = {
   getPatient,
   addPatient,
   getPatientDataFromAthena,
-  // getPatientById,
 };

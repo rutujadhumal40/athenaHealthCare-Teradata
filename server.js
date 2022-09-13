@@ -12,9 +12,9 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // req.body
 
-const port = 6000;
+const port = 5000;
 
-app.use("/api/v1/patient", patientRoutes);
+app.use("/", patientRoutes);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
