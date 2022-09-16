@@ -12,7 +12,9 @@ const getPatient = (req, res) => {
 };
 
 const addPatient = async (req, res) => {
+  console.log("ADD")
  await queries.addPatient(req, res, cursor);
+
  return "SUCCESS"
 };
 

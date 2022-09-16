@@ -85,7 +85,9 @@ const getPatientDataFromAthena = async (cursor) => {
 };
 
 const getPatient = (cursor) => {
-  const sQuery = "SELECT * FROM testProject.testPatient";
+ // const sQuery = "SELECT * FROM testProject.testPatient";
+ const sQuery = "SELECT * FROM testProject.testPatientComplete";
+
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
@@ -119,14 +121,44 @@ const addPatient = async (req, res, cursor) => {
       return data12;
     });
     var data12 = [];
-    await updatedData.map((item) => {
+    var balance=[];
+
+   /*  await updatedData.map((item) => {
       data12.push([item.suffix, item.firstname, item.lastname, item.status]);
-    });
+    });  */
+    data12=await updatedData.map(async (item) => {
+      //var obj={patientid: item.patientid}
+      //balance.push(obj)
+     //await item.balances.push(obj)
+     //await balance.push(item.balances)
+     item.donotcall==true ? 1:0
+     item.driverslicense==true ? 1:0
+     item.contactpreference_announcement_phone==true ? 1:0
+     item.guarantoraddresssameaspatient==true ? 1:0
+     item.portaltermsonfile==true ? 1:0
+     item.privacyinformationverified==true ? 1:0
+     item.emailexists==true ? 1:0
+     item.patientphoto==true ? 1:0
+     item.consenttotext==true ? 1:0
+     item.contactpreference_lab_phone==true ? 1:0
+
+
+
+     await delete item.balances;
+
+      return item;
+    }); 
+    //console.log(balan)
+  //  balance.map(item=>console.log(item))
+  
+    var insertString='?'
+    for(var i=0;i<39;i++)
+    insertString+=',?'
 
     await cursor.execute(
-      "insert into testProject.testPatient (?, ?, ?, ?)",
+      insertString,
       data12
-    );
+    ); 
 
     res.send("SUCCESS");
   } catch (error) {
