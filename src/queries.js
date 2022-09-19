@@ -126,40 +126,52 @@ const addPatient = async (req, res, cursor) => {
    /*  await updatedData.map((item) => {
       data12.push([item.suffix, item.firstname, item.lastname, item.status]);
     });  */
-    data12=await updatedData.map(async (item) => {
+    await updatedData.map(async (item) => {
       //var obj={patientid: item.patientid}
       //balance.push(obj)
      //await item.balances.push(obj)
      //await balance.push(item.balances)
-     item.donotcall==true ? 1:0
-     item.driverslicense==true ? 1:0
-     item.contactpreference_announcement_phone==true ? 1:0
-     item.guarantoraddresssameaspatient==true ? 1:0
-     item.portaltermsonfile==true ? 1:0
-     item.privacyinformationverified==true ? 1:0
-     item.emailexists==true ? 1:0
-     item.patientphoto==true ? 1:0
-     item.consenttotext==true ? 1:0
-     item.contactpreference_lab_phone==true ? 1:0
+     /* item.donotcall==true ? item.donotcall=1:item.donotcall=0
+     item.driverslicense==true ? item.driverslicense=1:item.driverslicense=0
+     item.contactpreference_announcement_phone==true ? item.contactpreference_announcement_phone=1:item.contactpreference_announcement_phone=0
+     item.guarantoraddresssameaspatient==true ? item.guarantoraddresssameaspatient=1:item.guarantoraddresssameaspatient=0
+     item.portaltermsonfile==true ? item.portaltermsonfile=1:item.portaltermsonfile=0
+     item.privacyinformationverified==true ? item.privacyinformationverified=1:item.privacyinformationverified=0
+     item.emailexists==true ? item.emailexists=1:item.emailexists=0
+     item.patientphoto==true ? item.patientphoto=1:item.patientphoto=0
+     item.consenttotext==true ? item.consenttotext=1:item.consenttotext=0
+     item.contactpreference_lab_phone==true ? item.contactpreference_lab_phone=1:item.contactpreference_lab_phone=0
+ */
 
+    delete item.balances;
 
-
-     await delete item.balances;
-
-      return item;
+  
+    data12.push([item.patientid,
+    item.firstname,
+    item.lastname,
+    item.suffix,
+    item.countrycode,
+    item.state,
+    item.homephone,
+    item.mobilephone,
+    item.zip,
+    item.dob,
+    item.departmentid,
+    item.status,
+    ])
     }); 
+
+
     //console.log(balan)
   //  balance.map(item=>console.log(item))
   
-    var insertString='?'
-    for(var i=0;i<39;i++)
-    insertString+=',?'
+   
 
+    console.log("The fetched data is:",data12)
     await cursor.execute(
-      insertString,
+      "insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)",
       data12
     ); 
-
     res.send("SUCCESS");
   } catch (error) {
     if (!anIgnoreError(error)) {
