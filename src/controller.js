@@ -21,7 +21,7 @@ const getPatientPrivacyInfo=(req,res)=>{
 // }
 const getDepartments=async(req,res)=>{
   console.log("Get Departments")
-  await queries.getDepartments(cursor)
+  await res.send(queries.getDepartments(cursor))
   return 'SUCCESS'
 }
 
