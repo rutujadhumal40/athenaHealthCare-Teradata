@@ -189,10 +189,70 @@ const addPatient = async (req, res, cursor) => {
   }
 };
 
+const addDepartment = async (req, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/departments`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        )
+        .then((data) => {
+          return data.data.departments;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item) => {
+    data12.push([item.departmentid,
+    item.name,
+    item.state,
+    item.city,
+    item.timezonename
+    ])
+    }); 
+  
+    console.log("The fetched data is:",data12)
+    await cursor.execute(
+      "insert into testProject.department (?, ?, ?, ?,?)",
+      data12
+    ); 
+    res.send("SUCCESS");
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+const getDepartments = (cursor) => {
+  // const sQuery = "SELECT * FROM testProject.testPatient";
+  const sQuery = `SELECT * FROM testProject.department`;
+ 
+   try {
+     cursor.execute(sQuery);
+     const fetchedRows = cursor.fetchall();
+     return fetchedRows;
+   } catch (error) {
+     if (!anIgnoreError(error)) {
+       throw error;
+     }
+   }
+ };
+ 
 
 module.exports = {
   getPatient,
   addPatient,
   getPatientDataFromAthena,
-  getPatientPrivacyInfo
+  getPatientPrivacyInfo,
+  addDepartment,
+  getDepartments
 };

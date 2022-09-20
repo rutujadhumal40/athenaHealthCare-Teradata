@@ -16,8 +16,23 @@ const getPatientPrivacyInfo=(req,res)=>{
  res.send(queries.getPatientPrivacyInfo(id,cursor))
 }
 
+// const getPatientBillingInfo=(req,res)=>{
+
+// }
+const getDepartments=async(req,res)=>{
+  console.log("Get Departments")
+  await queries.getDepartments(cursor)
+  return 'SUCCESS'
+}
+
+const addDepartment=async(req,res)=>{
+  console.log("Add Departments")
+  await queries.addDepartment(req, res, cursor);
+  return "SUCCESS"
+}
+
 const addPatient = async (req, res) => {
-  console.log("ADD")
+  console.log("Add Patients")
  await queries.addPatient(req, res, cursor);
 
  return "SUCCESS"
@@ -29,5 +44,7 @@ module.exports = {
   getPatient,
   addPatient,
   getPatientDataFromAthena,
-  getPatientPrivacyInfo
+  getPatientPrivacyInfo,
+  addDepartment,
+  getDepartments
 };
