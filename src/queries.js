@@ -130,6 +130,73 @@ const getPatientPrivacyInfo= (id,cursor) =>{
   }
     }}
  
+// const addPatientAthena= async (req, res, cursor) => {
+//   try {
+//     const updatedData = await utils.get_access_token().then(async (data) => {
+//       console.log("EPIC_access_token", data);
+//       const accessToken = data.access_token;
+//       const data12 = await axios
+//         .post(
+//           `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
+//           {
+//             headers: { 
+//             Authorization: `Bearer ${accessToken}`          },
+//             data: { 
+//             suffix: 'Mr',
+//             firstname:'Ameya',
+//             lastname: 'Bhave',
+//             departmentid: '1',
+//             countrycode3166:'US',
+//             zip:'411037',
+//             dob:'11/22/2003',
+//             status:'active'
+//           },
+//           }
+//         )
+//         .then((data) => {
+//           console.log(data);
+//         })
+//         .catch(function (err) {
+//           console.log("ERROR", err);
+//         });
+//       return data12;
+//     });
+//   } catch (error) {
+//     if (!anIgnoreError(error)) {
+//       throw error;
+//     }
+//   }
+// };
+
+const insertPatient= async(data,cursor)=>{
+  const sQuery = `insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)`;
+ 
+  const data12=[]
+  data12.push([
+  data.patient_id,
+ 	data.suffix,
+ 	data.first_name,
+ 	data.last_name,
+ 	data.country_code,
+ 	data.state,
+ 	data.home_phone,
+ 	data.mobile_phone,
+ 	data.zip,
+ 	data.dob,
+ 	data.department_id,
+ 	data.status 
+  ])
+  try {
+    cursor.execute(sQuery,data12);
+    const fetchedRows = cursor.fetchall();
+    return fetchedRows;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+}
+
 
 const addPatient = async (req, res, cursor) => {
   try {
@@ -259,7 +326,7 @@ const addOpenAppointments = async (req, res, cursor) => {
           `https://api.preview.platform.athenahealth.com/v1/195900/appointments/open`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-            params: { reasonid:"-1", departmentid:1}
+            params: { reasonid:"-1", departmentid: 1}
           }
         )
         .then((data) => {
@@ -324,5 +391,6 @@ module.exports = {
   addDepartment,
   getDepartments,
   addOpenAppointments,
-  getOpenAppointments
+  getOpenAppointments,
+  insertPatient
 };

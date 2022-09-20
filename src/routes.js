@@ -13,6 +13,9 @@ router.get('/getOpenAppointments/:id',controller.getOpenAppointments);
 router.post('/addDepartments', controller.addDepartment);
 router.post('/addOpenAppointments', controller.addOpenAppointments);
 
-router.get('/getDepartments',controller.getDepartments)
+router.get('/getDepartments',controller.getDepartments);
+router.post('/addPatientAthena',controller.addPatientAthena);
+router.post('/insertPatient',controller.insertPatient);
+
 
 module.exports = router;

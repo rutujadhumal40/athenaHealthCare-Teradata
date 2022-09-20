@@ -31,11 +31,23 @@ const getDepartments=async(req,res)=>{
 }
 
 const addOpenAppointments=async(req,res)=>{
+ // var id=req.params.id
   console.log("Add Open Appointments")
   await queries.addOpenAppointments(req, res, cursor);
   return "SUCCESS"
 }
 
+const insertPatient=async(req,res)=>{
+  console.log("Inserting Patient to Tera")
+  var data=req.body.data
+await queries.insertPatient(data,cursor)
+}
+
+const addPatientAthena=async(req,res)=>{
+  console.log("Add Patient to Athena")
+  await queries.addPatientAthena(req, res, cursor);
+  return "SUCCESS"
+}
 const addDepartment=async(req,res)=>{
   console.log("Add Departments")
   await queries.addDepartment(req, res, cursor);
@@ -59,5 +71,7 @@ module.exports = {
   addDepartment,
   getDepartments,
   addOpenAppointments,
-  getOpenAppointments
+  getOpenAppointments,
+  addPatientAthena,
+  insertPatient
 };
