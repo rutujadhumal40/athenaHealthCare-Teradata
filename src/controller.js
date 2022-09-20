@@ -16,6 +16,11 @@ const getPatientPrivacyInfo=(req,res)=>{
  res.send(queries.getPatientPrivacyInfo(id,cursor))
 }
 
+const getOpenAppointments=(req,res)=>{
+  var id=req.params.id
+ res.send(queries.getOpenAppointments(id,cursor))
+}
+
 // const getPatientBillingInfo=(req,res)=>{
 
 // }
@@ -23,6 +28,12 @@ const getDepartments=async(req,res)=>{
   console.log("Get Departments")
   await res.send(queries.getDepartments(cursor))
   return 'SUCCESS'
+}
+
+const addOpenAppointments=async(req,res)=>{
+  console.log("Add Open Appointments")
+  await queries.addOpenAppointments(req, res, cursor);
+  return "SUCCESS"
 }
 
 const addDepartment=async(req,res)=>{
@@ -46,5 +57,7 @@ module.exports = {
   getPatientDataFromAthena,
   getPatientPrivacyInfo,
   addDepartment,
-  getDepartments
+  getDepartments,
+  addOpenAppointments,
+  getOpenAppointments
 };
