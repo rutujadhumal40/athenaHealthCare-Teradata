@@ -86,7 +86,7 @@ const getPatientDataFromAthena = async (cursor) => {
 
 const getPatient = (cursor) => {
  // const sQuery = "SELECT * FROM testProject.testPatient";
- const sQuery = "SELECT * FROM testProject.testPatientComplete";
+ const sQuery = `SELECT * FROM testProject.testPatientComplete`;
 
   try {
     cursor.execute(sQuery);
@@ -98,6 +98,21 @@ const getPatient = (cursor) => {
     }
   }
 };
+
+const getPatientPrivacyInfo= (id,cursor) =>{  
+   //var dep_id=req.body.
+   var id=id;
+  const sQuery=`Select * from testProject.patientPrivacyInfo where patient_id=${id}`;
+   try {
+     cursor.execute(sQuery);
+     const fetchedRows = cursor.fetchall();
+     console.log(`${id}:`,fetchedRows);
+     return fetchedRows;
+ } catch (error) {
+     if (!anIgnoreError(error)) {
+             throw error;
+ }
+   }}
 
 const addPatient = async (req, res, cursor) => {
   try {
@@ -160,13 +175,7 @@ const addPatient = async (req, res, cursor) => {
     item.status,
     ])
     }); 
-
-
-    //console.log(balan)
-  //  balance.map(item=>console.log(item))
   
-   
-
     console.log("The fetched data is:",data12)
     await cursor.execute(
       "insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)",
@@ -185,4 +194,5 @@ module.exports = {
   getPatient,
   addPatient,
   getPatientDataFromAthena,
+  getPatientPrivacyInfo
 };

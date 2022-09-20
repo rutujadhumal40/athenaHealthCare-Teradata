@@ -11,6 +11,11 @@ const getPatient = (req, res) => {
   res.send(queries.getPatient(cursor));
 };
 
+const getPatientPrivacyInfo=(req,res)=>{
+  var id=req.params.id
+ res.send(queries.getPatientPrivacyInfo(id,cursor))
+}
+
 const addPatient = async (req, res) => {
   console.log("ADD")
  await queries.addPatient(req, res, cursor);
@@ -18,8 +23,11 @@ const addPatient = async (req, res) => {
  return "SUCCESS"
 };
 
+
+
 module.exports = {
   getPatient,
   addPatient,
   getPatientDataFromAthena,
+  getPatientPrivacyInfo
 };
