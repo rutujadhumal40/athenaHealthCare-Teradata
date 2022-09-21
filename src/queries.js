@@ -140,7 +140,8 @@ const addPatientAthena= async (data1,cursor) => {
         ({
           method: "post",
           url: `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
-          data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`,
+          data:"suffix=Mr&firstname=Ameya&lastname=Bhave&departmentid=1&countrycode3166=US&zip=411037&dob=11/22/2003&status=active",
+          //data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`,
           headers: { 
             Authorization: `Bearer ${accessToken}`,
             "content-type": "application/x-www-form-urlencoded",
