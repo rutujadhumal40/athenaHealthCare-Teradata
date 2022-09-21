@@ -596,6 +596,74 @@ const getDepartments = (cursor) => {
    }
  };
  
+ const addInsurances=async (id, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/appointments/${id}/insurances`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        )
+        .then((data) => {
+          console.log(data.data.insurances)
+         return data.data.insurances;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+     return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item) => {
+      data12.push(
+        [ 
+          id,
+          item.insuranceid,
+          item.insurancepolicyholdersuffix ,
+item.insurancepolicyholderfirstname,
+item.insurancepolicyholdermiddlename,
+item.insurancepolicyholderlastname,
+item.insurancepolicyholder, 
+item.insurancepolicyholderdob,
+item.insurancepolicyholdersex,
+item.insurancepolicyholdercountrycode,
+item.insurancepolicyholderstate,
+item.insurancepolicyholdercity,
+item.insurancepolicyholderaddress1,
+item.insurancepolicyholderaddress2 ,
+item.insurancepolicyholderzip,
+item.policynumber ,
+item.insuranceplanname ,
+item.insurancetype, 
+item.insurancephone ,
+item.issuedate,
+item.expirationdate,
+item.eligibilitystatus,
+item.eligibilitylastchecked
+   ]
+      )
+    
+ }); 
+
+  
+    console.log("The fetched data is:", data12);
+   await cursor.execute(
+      "insert into testProject.insurances (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+     data12
+     )
+     res.send("SUCCESS");
+    
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
 
 module.exports = {
   getPatient,
@@ -611,5 +679,6 @@ module.exports = {
   addBalances,
   getBalance,
   addAppointments,
-  getAppointments
+  getAppointments,
+  addInsurances
 };

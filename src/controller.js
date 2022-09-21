@@ -88,6 +88,13 @@ const addPatient = async (req, res) => {
  return "SUCCESS"
 };
 
+const addInsurances = async (req, res) => {
+  console.log("Add Insurances")
+ await queries.addInsurances(req.params.id, res, cursor);
+
+ return "SUCCESS"
+};
+
 
 
 module.exports = {
@@ -104,5 +111,6 @@ module.exports = {
   addBalances,
   getBalance,
   addAppointments,
-  getAppointments
+  getAppointments,
+  addInsurances
 };

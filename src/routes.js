@@ -17,6 +17,7 @@ router.post('/addDepartments', controller.addDepartment);
 router.post('/addOpenAppointments', controller.addOpenAppointments);
 router.post('/addAppointments/:id', controller.addAppointments);
 router.get('/getAppointments/:id',controller.getAppointments);
+router.post('/addInsurances/:id', controller.addInsurances);
 
 router.get('/getDepartments',controller.getDepartments);
 router.post('/addPatientAthena',controller.addPatientAthena);
