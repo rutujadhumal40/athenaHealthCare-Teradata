@@ -33,8 +33,22 @@ const getDepartments=async(req,res)=>{
 const addOpenAppointments=async(req,res)=>{
  // var id=req.params.id
   console.log("Add Open Appointments")
+
   await queries.addOpenAppointments(req, res, cursor);
   return "SUCCESS"
+}
+
+const addAppointments=async(req,res)=>{
+  // var id=req.params.id
+   console.log("Add Appointments by ID")
+   await queries.addAppointments(req.params.id, res, cursor);
+   return "SUCCESS"
+ }
+
+ const getAppointments=async(req,res)=>{
+  console.log("Get Appointments", req.params.id)
+  await res.send(queries.getAppointments(req.params.id,cursor))
+  return 'SUCCESS'
 }
 
 const insertPatient=async(req,res)=>{
@@ -88,5 +102,7 @@ module.exports = {
   addPatientAthena,
   insertPatient,
   addBalances,
-  getBalance
+  getBalance,
+  addAppointments,
+  getAppointments
 };

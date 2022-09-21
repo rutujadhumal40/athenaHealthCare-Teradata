@@ -493,7 +493,93 @@ const addOpenAppointments = async (req, res, cursor) => {
   }
 };
 
+const addAppointments = async (id, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/patients/${id}/appointments`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            params: { reasonid: "-1", departmentid: 1 },
+          }
+        )
+        .then((data) => {
+          console.log(data)
+         return data.data.appointments;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item) => {
+      data12.push([
+    id,
+    item.appointmentid.toString(),
+    item.departmentid.toString(),
+    item.appointmenttype,
+    item.providerid.toString(),
+    item.starttime,
+    item.duration.toString(),
+    item.date,
+      ]);
+    }); 
 
+    console.log("The fetched data is:", data12);
+    await cursor.execute(
+      "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
+      data12
+    ); 
+    res.send("SUCCESS");
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+const getAppointments = (id, cursor) => {
+  //var dep_id=req.body.
+var id = id;
+const sQuery = `Select * from testProject.appointments where patient_id=${id}`;
+  try {
+    cursor.execute(sQuery);
+    const allAppointments=[]
+    const fetchedRows = cursor.fetchall();
+  console.log(`${id}:`, fetchedRows);
+  fetchedRows.map(element=>{
+    const[
+      patientid,
+      appointmentid,
+      departmentid,
+      appointmenttype,
+      providerid,
+      starttime,
+      duration,
+      date
+    ]=element
+    allAppointments.push({
+      patientid: patientid,
+      appointmentid: appointmentid,
+      departmentid: departmentid,
+      appointmenttype: appointmenttype,
+      providerid:providerid,
+      starttime: starttime,
+      duration: duration,
+      date: date
+    })
+  })
+    return allAppointments;
+} catch (error) {
+    if (!anIgnoreError(error)) {
+            throw error;
+}
+}
+};
 
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
@@ -523,5 +609,7 @@ module.exports = {
   //insertPatient
   addPatientAthena,
   addBalances,
-  getBalance
+  getBalance,
+  addAppointments,
+  getAppointments
 };
