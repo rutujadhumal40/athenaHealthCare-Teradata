@@ -664,6 +664,75 @@ item.eligibilitylastchecked
   }
 };
 
+const getInsurances = (id, cursor) => {
+  //var dep_id=req.body.
+var id = id;
+const sQuery = `Select * from testProject.insurances where appointment_id=${id}`;
+  try {
+    cursor.execute(sQuery);
+    const allAppointments=[]
+    const fetchedRows = cursor.fetchall();
+  console.log(`${id}:`, fetchedRows);
+  fetchedRows.map(element=>{
+    const[
+      appointment_id,
+      insuranceid,
+      insurancepolicyholdersuffix ,
+insurancepolicyholderfirstname,
+insurancepolicyholdermiddlename,
+insurancepolicyholderlastname,
+insurancepolicyholder, 
+insurancepolicyholderdob,
+insurancepolicyholdersex,
+insurancepolicyholdercountrycode,
+insurancepolicyholderstate,
+insurancepolicyholdercity,
+insurancepolicyholderaddress1,
+insurancepolicyholderaddress2 ,
+insurancepolicyholderzip,
+policynumber ,
+insuranceplanname ,
+insurancetype, 
+insurancephone ,
+issuedate,
+expirationdate,
+eligibilitystatus,
+eligibilitylastchecked
+ ]=element
+    allAppointments.push({
+      appointment_id:appointment_id,
+      insuranceid: insuranceid,
+      insurancepolicyholdersuffix:insurancepolicyholdersuffix ,
+      insurancepolicyholderfirstname:insurancepolicyholderfirstname,
+      insurancepolicyholdermiddlename:insurancepolicyholdermiddlename,
+      insurancepolicyholderlastname:insurancepolicyholderlastname,
+      insurancepolicyholder:insurancepolicyholder, 
+      insurancepolicyholderdob:insurancepolicyholderdob,
+      insurancepolicyholdersex:insurancepolicyholdersex,
+      insurancepolicyholdercountrycode:insurancepolicyholdercountrycode,
+      insurancepolicyholderstate:insurancepolicyholderstate,
+      insurancepolicyholdercity:insurancepolicyholdercity,
+      insurancepolicyholderaddress1:insurancepolicyholderaddress1,
+      insurancepolicyholderaddress2:insurancepolicyholderaddress2 ,
+      insurancepolicyholderzip:insurancepolicyholderzip,
+      policynumber:policynumber ,
+      insuranceplanname:insuranceplanname ,
+      insurancetype:insurancetype, 
+      insurancephone:insurancephone ,
+      issuedate:issuedate,
+      expirationdate:expirationdate,
+      eligibilitystatus:eligibilitystatus,
+      eligibilitylastchecked:eligibilitylastchecked
+    })
+  })
+    return allAppointments;
+} catch (error) {
+    if (!anIgnoreError(error)) {
+            throw error;
+}
+}
+};
+
 
 module.exports = {
   getPatient,
@@ -680,5 +749,6 @@ module.exports = {
   getBalance,
   addAppointments,
   getAppointments,
-  addInsurances
+  addInsurances,
+  getInsurances
 };

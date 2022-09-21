@@ -95,6 +95,13 @@ const addInsurances = async (req, res) => {
  return "SUCCESS"
 };
 
+const getInsurances=async(req,res)=>{
+  console.log("Get Insurances", req.params.id)
+  await res.send(queries.getInsurances(req.params.id,cursor))
+  return 'SUCCESS'
+}
+
+
 
 
 module.exports = {
@@ -112,5 +119,6 @@ module.exports = {
   getBalance,
   addAppointments,
   getAppointments,
-  addInsurances
+  addInsurances,
+  getInsurances
 };
