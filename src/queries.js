@@ -85,8 +85,8 @@ const getPatientDataFromAthena = async (cursor) => {
 };
 
 const getPatient = (cursor) => {
- // const sQuery = "SELECT * FROM testProject.testPatient";
- const sQuery = `SELECT * FROM testProject.testPatientComplete`;
+  // const sQuery = "SELECT * FROM testProject.testPatient";
+  const sQuery = `SELECT * FROM testProject.testPatientComplete`;
 
   try {
     cursor.execute(sQuery);
@@ -99,61 +99,66 @@ const getPatient = (cursor) => {
   }
 };
 
-const getPatientPrivacyInfo= (id,cursor) =>{  
-   //var dep_id=req.body.
-   var id=id;
-  const sQuery=`Select * from testProject.patientPrivacyInfo where patient_id=${id}`;
-   try {
-     cursor.execute(sQuery);
-     const fetchedRows = cursor.fetchall();
-     console.log(`${id}:`,fetchedRows);
-     return fetchedRows;
- } catch (error) {
-     if (!anIgnoreError(error)) {
-             throw error;
- }
-   }}
-
-
-   const getOpenAppointments= (id,cursor) =>{  
-    //var dep_id=req.body.
-    var id=id;
-   const sQuery=`Select * from testProject.openAppointments where department_id=${id}`;
-    try {
-      cursor.execute(sQuery);
-      const fetchedRows = cursor.fetchall();
-      console.log(`${id}:`,fetchedRows);
-      return fetchedRows;
+const getPatientPrivacyInfo = (id, cursor) => {
+  //var dep_id=req.body.
+  var id = id;
+  const sQuery = `Select * from testProject.patientPrivacyInfo where patient_id=${id}`;
+  try {
+    cursor.execute(sQuery);
+    const fetchedRows = cursor.fetchall();
+    console.log(`${id}:`, fetchedRows);
+    return fetchedRows;
   } catch (error) {
-      if (!anIgnoreError(error)) {
-              throw error;
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
   }
-    }}
- 
-const addPatientAthena= async (data1,cursor) => {
+};
+
+const getOpenAppointments = (id, cursor) => {
+  //var dep_id=req.body.
+  var id = id;
+  const sQuery = `Select * from testProject.openAppointments where department_id=${id}`;
+  try {
+    cursor.execute(sQuery);
+    const fetchedRows = cursor.fetchall();
+    console.log(`${id}:`, fetchedRows);
+    return fetchedRows;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+const addPatientAthena = async (data1, cursor) => {
   try {
     const updatedData = await utils.get_access_token().then(async (data) => {
       console.log("EPIC_access_token", data);
-      console.log("Request Body Data:",data1)
+      console.log("Request Body Data:", data1);
+      const abc =  `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`;
+      console.log('abc' ,abc);
       const accessToken = data.access_token;
-      const data12 = await axios
-        ({
+        const data12 = await axios({
           method: "post",
           url: `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
-          data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`,
-          headers: { 
+          data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=11/22/2003&status=${data1.status}&state=${data1.state}`,
+          headers: {
             Authorization: `Bearer ${accessToken}`,
             "content-type": "application/x-www-form-urlencoded",
           },
-         } )
-        .then((data) => {
-          console.log(data)
-          //insertPatient(data,cursor)
         })
-        .catch(function (err) {
-          console.log("ERROR", err);
-        });
-      return data12;
+          .then((data) => {
+            console.log(data);
+
+            console.log(data.data[0].patientid);
+            data1 = { ...data1, patientid: data.data[0].patientid };
+            insertPatient(data1, cursor);
+          })
+          .catch(function (err) {
+            console.log("ERROR", err);
+          });
+        return data12;
     });
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -162,26 +167,27 @@ const addPatientAthena= async (data1,cursor) => {
   }
 };
 
-const insertPatient= async(data,cursor)=>{
+const insertPatient = async (data, cursor) => {
   const sQuery = `insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)`;
- 
-  const data12=[]
+
+  const data12 = [];
   data12.push([
-  data.patient_id,
- 	data.suffix,
- 	data.first_name,
- 	data.last_name,
- 	data.country_code,
- 	data.state,
- 	data.home_phone,
- 	data.mobile_phone,
- 	data.zip,
- 	data.dob,
- 	data.department_id,
- 	data.status 
-  ])
+    data.patient_id,
+    data.suffix,
+    data.first_name,
+    data.last_name,
+    data.country_code,
+    data.state,
+    data.home_phone,
+    data.mobile_phone,
+    data.zip,
+    //data.dob,
+    data.department_id,
+    data.status,
+    data.state,
+  ]);
   try {
-    cursor.execute(sQuery,data12);
+    cursor.execute(sQuery, data12);
     const fetchedRows = cursor.fetchall();
     return fetchedRows;
   } catch (error) {
@@ -189,8 +195,7 @@ const insertPatient= async(data,cursor)=>{
       throw error;
     }
   }
-}
-
+};
 
 const addPatient = async (req, res, cursor) => {
   try {
@@ -202,7 +207,7 @@ const addPatient = async (req, res, cursor) => {
           `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-            params: { suffix: "Mr."},
+            params: { suffix: "Mr." },
           }
         )
         .then((data) => {
@@ -214,17 +219,17 @@ const addPatient = async (req, res, cursor) => {
       return data12;
     });
     var data12 = [];
-    var balance=[];
+    var balance = [];
 
-   /*  await updatedData.map((item) => {
+    /*  await updatedData.map((item) => {
       data12.push([item.suffix, item.firstname, item.lastname, item.status]);
     });  */
     await updatedData.map(async (item) => {
       //var obj={patientid: item.patientid}
       //balance.push(obj)
-     //await item.balances.push(obj)
-     //await balance.push(item.balances)
-     /* item.donotcall==true ? item.donotcall=1:item.donotcall=0
+      //await item.balances.push(obj)
+      //await balance.push(item.balances)
+      /* item.donotcall==true ? item.donotcall=1:item.donotcall=0
      item.driverslicense==true ? item.driverslicense=1:item.driverslicense=0
      item.contactpreference_announcement_phone==true ? item.contactpreference_announcement_phone=1:item.contactpreference_announcement_phone=0
      item.guarantoraddresssameaspatient==true ? item.guarantoraddresssameaspatient=1:item.guarantoraddresssameaspatient=0
@@ -236,29 +241,29 @@ const addPatient = async (req, res, cursor) => {
      item.contactpreference_lab_phone==true ? item.contactpreference_lab_phone=1:item.contactpreference_lab_phone=0
  */
 
-    delete item.balances;
+      delete item.balances;
 
-  
-    data12.push([item.patientid,
-    item.firstname,
-    item.lastname,
-    item.suffix,
-    item.countrycode,
-    item.state,
-    item.homephone,
-    item.mobilephone,
-    item.zip,
-    item.dob,
-    item.departmentid,
-    item.status,
-    ])
-    }); 
-  
-    console.log("The fetched data is:",data12)
+      data12.push([
+        item.patientid,
+        item.firstname,
+        item.lastname,
+        item.suffix,
+        item.countrycode,
+        item.state,
+        item.homephone,
+        item.mobilephone,
+        item.zip,
+        item.dob,
+        item.departmentid,
+        item.status,
+      ]);
+    });
+
+    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)",
       data12
-    ); 
+    );
     res.send("SUCCESS");
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -289,19 +294,20 @@ const addDepartment = async (req, res, cursor) => {
     });
     var data12 = [];
     await updatedData.map(async (item) => {
-    data12.push([item.departmentid,
-    item.name,
-    item.state,
-    item.city,
-    item.timezonename
-    ])
-    }); 
-  
-    console.log("The fetched data is:",data12)
+      data12.push([
+        item.departmentid,
+        item.name,
+        item.state,
+        item.city,
+        item.timezonename,
+      ]);
+    });
+
+    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.department (?, ?, ?, ?,?)",
       data12
-    ); 
+    );
     res.send("SUCCESS");
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -320,7 +326,7 @@ const addOpenAppointments = async (req, res, cursor) => {
           `https://api.preview.platform.athenahealth.com/v1/195900/appointments/open`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-            params: { reasonid:"-1", departmentid: 1}
+            params: { reasonid: "-1", departmentid: 1 },
           }
         )
         .then((data) => {
@@ -333,24 +339,22 @@ const addOpenAppointments = async (req, res, cursor) => {
     });
     var data12 = [];
     await updatedData.map(async (item) => {
-    data12.push(
-    [item.appointmentid.toString(),
-    item.departmentid.toString(),
-    item.appointmenttype,
-    item.providerid.toString(),
-    item.starttime,
-    item.duration.toString(),
-    item.date
-    ])
-    }); 
+      data12.push([
+        item.appointmentid.toString(),
+        item.departmentid.toString(),
+        item.appointmenttype,
+        item.providerid.toString(),
+        item.starttime,
+        item.duration.toString(),
+        item.date,
+      ]);
+    });
 
-  
-  
-    console.log("The fetched data is:",data12)
+    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.openAppointments (?, ?, ?, ?,?,?,?)",
       data12
-    ); 
+    );
     res.send("SUCCESS");
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -359,23 +363,20 @@ const addOpenAppointments = async (req, res, cursor) => {
   }
 };
 
-
-
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
   const sQuery = `SELECT * FROM testProject.department`;
- 
-   try {
-     cursor.execute(sQuery);
-     const fetchedRows = cursor.fetchall();
-     return fetchedRows;
-   } catch (error) {
-     if (!anIgnoreError(error)) {
-       throw error;
-     }
-   }
- };
- 
+
+  try {
+    cursor.execute(sQuery);
+    const fetchedRows = cursor.fetchall();
+    return fetchedRows;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
 
 module.exports = {
   getPatient,
@@ -387,5 +388,5 @@ module.exports = {
   addOpenAppointments,
   getOpenAppointments,
   //insertPatient
-  addPatientAthena
+  addPatientAthena,
 };
