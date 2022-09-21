@@ -2,6 +2,7 @@ const TeradataConnection = require("teradata-nodejs-driver/teradata-connection")
 const TeradataExceptions = require("teradata-nodejs-driver/teradata-exceptions");
 const utils = require("../utils");
 const { default: axios } = require("axios");
+const { all } = require("./routes");
 
 const anIgnoreError = (error) => {
   var ignoreErrorCodes = [
@@ -369,6 +370,35 @@ const addBalances=async (req, res, cursor) => {
   }
 };
 
+const getBalance = (id, cursor) => {
+  //var dep_id=req.body.
+const sQuery = `Select * from testProject.balance where patient_id=${id}`;
+const allBalance=[]  
+try {
+    cursor.execute(sQuery);
+    const fetchedRows = cursor.fetchall();
+  console.log(`${id}:`, fetchedRows);
+fetchedRows.map(element=>{
+  const [
+    patient_id,
+    balance,
+    cleanbalance
+  ]=element
+  allBalance.push({
+    patient_id:patient_id,
+    balance:balance,
+    cleanbalance:cleanbalance
+  })
+})
+    console.log(allBalance)
+    return allBalance;
+} catch (error) {
+    if (!anIgnoreError(error)) {
+            throw error;
+}
+}
+};
+
 const addDepartment = async (req, res, cursor) => {
   try {
     const updatedData = await utils.get_access_token().then(async (data) => {
@@ -489,5 +519,6 @@ module.exports = {
   getOpenAppointments,
   //insertPatient
   addPatientAthena,
-  addBalances
+  addBalances,
+  getBalance
 };
