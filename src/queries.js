@@ -91,7 +91,40 @@ const getPatient = (cursor) => {
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-    return fetchedRows;
+    const allPatient=[];
+    fetchedRows.forEach(element => {
+      const [
+        patient_id,
+        first_name,
+        last_name,
+        suffix,
+        country_code,
+        state,
+        homephone,
+        mobilephone,
+        zip,
+        dob,
+        department_id,
+        status
+        ] = element;
+        allPatient.push({
+          patient_id: patient_id,
+          firstname: first_name,
+          lastname: last_name,
+          suffix: suffix,
+          countrycode:country_code,
+          state: state,
+          homephone:homephone,
+          mobilephone: mobilephone,
+          zip:zip,
+          dob:dob,
+          department_id:department_id,
+          status:status
+          });
+    });
+        console.log(allPatient);
+
+    return allPatient;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -172,7 +205,7 @@ const insertPatient = async (data, cursor) => {
  
   const data12 = [];
   data12.push([
-  data.patient_id,
+  data.patientid,
  	data.suffix,
  	data.first_name,
  	data.last_name,
@@ -241,7 +274,7 @@ const addPatient = async (req, res, cursor) => {
      item.contactpreference_lab_phone==true ? item.contactpreference_lab_phone=1:item.contactpreference_lab_phone=0
  */
 
-    delete item.balances;
+    console.log(item.balances);
 
       data12.push([
         item.patientid,
@@ -265,6 +298,70 @@ const addPatient = async (req, res, cursor) => {
       data12
     ); 
     res.send("SUCCESS");
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+const addBalances=async (req, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            params: { suffix: "Mr." },
+          }
+        )
+        .then((data) => {
+          return data.data.patients;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item1) => {
+    item1.balances.map(item=>{
+      data12.push(
+        [ 
+          item1.patientid,
+          item.balance.toString(),
+          (item.cleanbalance=true ? item.cleanbalance=1:item.cleanbalance=0)
+        ]
+      )
+    })
+
+    //   data12.push([
+    //     item.patientid,
+    // item.firstname,
+    // item.lastname,
+    // item.suffix,
+    // item.countrycode,
+    // item.state,
+    // item.homephone,
+    // item.mobilephone,
+    // item.zip,
+    // item.dob,
+    // item.departmentid,
+    // item.status,
+    //   ]);
+    }); 
+
+  
+    console.log("The fetched data is:", data12);
+   await cursor.execute(
+      "insert into testProject.balance (?, ?, ?)",
+     data12
+     )
+     res.send("SUCCESS");
+    
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -392,4 +489,5 @@ module.exports = {
   getOpenAppointments,
   //insertPatient
   addPatientAthena,
+  addBalances
 };

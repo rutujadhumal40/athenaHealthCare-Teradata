@@ -55,6 +55,12 @@ const addDepartment=async(req,res)=>{
   return "SUCCESS"
 }
 
+const addBalances= async(req,res)=>{
+  console.log("Add Balances");
+  await queries.addBalances(req, res, cursor);
+  return 'SUCCESS'
+}
+
 const addPatient = async (req, res) => {
   console.log("Add Patients")
  await queries.addPatient(req, res, cursor);
@@ -74,5 +80,6 @@ module.exports = {
   addOpenAppointments,
   getOpenAppointments,
   addPatientAthena,
-  insertPatient
+  insertPatient,
+  addBalances
 };

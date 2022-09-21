@@ -6,6 +6,8 @@ router.get('/', controller.getPatientDataFromAthena);
 
 router.get('/getData', controller.getPatient);
 router.post('/addPatients', controller.addPatient);
+router.post('/addBalances', controller.addBalances);
+
 router.get('/getPrivacyInfo/:id',controller.getPatientPrivacyInfo);
 router.get('/getOpenAppointments/:id',controller.getOpenAppointments);
 
