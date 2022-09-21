@@ -44,7 +44,7 @@ await queries.insertPatient(data,cursor)
 }
 
 const addPatientAthena=async(req,res)=>{
-  console.log("Add Patient to Athena",req.body)
+  console.log("Add Patient to Athena",req.body.values)
   const data=req.body.values;
   await queries.addPatientAthena(data,cursor);
   return "SUCCESS"
