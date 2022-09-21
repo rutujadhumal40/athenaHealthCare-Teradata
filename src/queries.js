@@ -130,43 +130,37 @@ const getPatientPrivacyInfo= (id,cursor) =>{
   }
     }}
  
-// const addPatientAthena= async (req, res, cursor) => {
-//   try {
-//     const updatedData = await utils.get_access_token().then(async (data) => {
-//       console.log("EPIC_access_token", data);
-//       const accessToken = data.access_token;
-//       const data12 = await axios
-//         .post(
-//           `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
-//           {
-//             headers: { 
-//             Authorization: `Bearer ${accessToken}`          },
-//             data: { 
-//             suffix: 'Mr',
-//             firstname:'Ameya',
-//             lastname: 'Bhave',
-//             departmentid: '1',
-//             countrycode3166:'US',
-//             zip:'411037',
-//             dob:'11/22/2003',
-//             status:'active'
-//           },
-//           }
-//         )
-//         .then((data) => {
-//           console.log(data);
-//         })
-//         .catch(function (err) {
-//           console.log("ERROR", err);
-//         });
-//       return data12;
-//     });
-//   } catch (error) {
-//     if (!anIgnoreError(error)) {
-//       throw error;
-//     }
-//   }
-// };
+const addPatientAthena= async (data1,cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      console.log("Request Body Data:",data1)
+      const accessToken = data.access_token;
+      const data12 = await axios
+        ({
+          method: "post",
+          url: `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
+          data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`,
+          headers: { 
+            Authorization: `Bearer ${accessToken}`,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+         } )
+        .then((data) => {
+          console.log(data)
+          //insertPatient(data,cursor)
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
 
 const insertPatient= async(data,cursor)=>{
   const sQuery = `insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)`;
@@ -392,5 +386,6 @@ module.exports = {
   getDepartments,
   addOpenAppointments,
   getOpenAppointments,
-  insertPatient
+  //insertPatient
+  addPatientAthena
 };

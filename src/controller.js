@@ -39,13 +39,14 @@ const addOpenAppointments=async(req,res)=>{
 
 const insertPatient=async(req,res)=>{
   console.log("Inserting Patient to Tera")
-  var data=req.body.data
+  var data=req.data
 await queries.insertPatient(data,cursor)
 }
 
 const addPatientAthena=async(req,res)=>{
-  console.log("Add Patient to Athena")
-  await queries.addPatientAthena(req, res, cursor);
+  console.log("Add Patient to Athena",req.body)
+  const data=req.body.values;
+  await queries.addPatientAthena(data,cursor);
   return "SUCCESS"
 }
 const addDepartment=async(req,res)=>{
