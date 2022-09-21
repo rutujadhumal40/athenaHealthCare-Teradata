@@ -334,7 +334,8 @@ const addBalances=async (req, res, cursor) => {
         [ 
           item1.patientid,
           item.balance.toString(),
-          (item.cleanbalance=true ? item.cleanbalance=1:item.cleanbalance=0)
+          (item.cleanbalance=true ? item.cleanbalance=1:item.cleanbalance=0),
+          item.providergroupid.toString()
         ]
       )
     })
@@ -358,7 +359,7 @@ const addBalances=async (req, res, cursor) => {
   
     console.log("The fetched data is:", data12);
    await cursor.execute(
-      "insert into testProject.balance (?, ?, ?)",
+      "insert into testProject.balance (?, ?, ?,?)",
      data12
      )
      res.send("SUCCESS");
@@ -382,12 +383,14 @@ fetchedRows.map(element=>{
   const [
     patient_id,
     balance,
-    cleanbalance
+    cleanbalance,
+    providergroupid
   ]=element
   allBalance.push({
     patient_id:patient_id,
     balance:balance,
-    cleanbalance:cleanbalance
+    cleanbalance:cleanbalance,
+    providergroupid:providergroupid
   })
 })
     console.log(allBalance)
