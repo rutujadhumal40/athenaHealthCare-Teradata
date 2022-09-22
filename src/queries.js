@@ -651,12 +651,17 @@ item.eligibilitylastchecked
 
   
     console.log("The fetched data is:", data12);
+    if(data12.length===0)
+    {
+    res.send("Nothing to Insert.")
+    }
+    else{
    await cursor.execute(
       "insert into testProject.insurances (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
      data12
      )
      res.send("SUCCESS");
-    
+   }
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
