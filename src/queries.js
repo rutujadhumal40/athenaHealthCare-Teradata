@@ -59,9 +59,7 @@ const getPatientDataFromAthena = async (cursor) => {
     const dataFromEthena = await axios
       .get(`https://api.preview.platform.athenahealth.com/v1/195900/patients`, {
         headers: { Authorization: `Bearer ${accessToken}` },
-        params: { suffix: "Mr.",
-
-      },
+        params: { suffix: "Mr." },
       })
       .then((data) => {
         return data.data;
@@ -142,7 +140,30 @@ const getOpenAppointments = (id, cursor) => {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
     console.log(`${id}:`, fetchedRows);
-    return fetchedRows;
+    const allOpenAppointments=[]
+    fetchedRows.map((element) => {
+      const [
+        appointment_id,
+        department_id,
+        appointment_type,
+        provider_id,
+        start_time,
+        duration,
+        date,
+      ] = element;
+      allOpenAppointments.push({
+        appointment_id,
+        department_id,
+        appointment_type,
+        provider_id,
+        start_time,
+        duration,
+        date,        
+      })
+
+    });
+    console.log("Open Appointmnets",allOpenAppointments)
+    return allOpenAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -540,7 +561,7 @@ const getAppointments = (id, cursor) => {
       allAppointments.push({
         patientid: patientid,
         appointmentid: appointmentid,
-        departmentid: getDepartmentName(departmentid,cursor),
+        departmentid: getDepartmentName(departmentid, cursor),
         appointmenttype: appointmenttype,
         providerid: providerid,
         starttime: starttime,
@@ -556,27 +577,29 @@ const getAppointments = (id, cursor) => {
   }
 };
 
-const createNewAppointment=(patient_id,appointment_id,cursor)=>{
-  let id=appointment_id.toString();
+const createNewAppointment = (patient_id, appointment_id, cursor) => {
+  let id = appointment_id.toString();
   const sQuery = `select * from testProject.openAppointments where appointment_id=${id}`;
-  console.log(sQuery)
+  console.log(sQuery);
   try {
     cursor.execute(sQuery);
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
-   //console.log(fetchedRows)
-   const data12=[]
-   fetchedRows.map(item=>data12.push(
-    patient_id,
-    item[0],
-    item[1],
-    item[2],
-    item[3],
-    item[4],
-    item[5],
-    item[6]
-   ))
-   console.log("Data 12:",data12)
+    //console.log(fetchedRows)
+    const data12 = [];
+    fetchedRows.map((item) =>
+      data12.push(
+        patient_id,
+        item[0],
+        item[1],
+        item[2],
+        item[3],
+        item[4],
+        item[5],
+        item[6]
+      )
+    );
+    console.log("Data 12:", data12);
     // fetchedRows.map(async (element1) => {
     // element1.map( (element)=>{
     //   allAppointments.push(
@@ -618,8 +641,7 @@ const createNewAppointment=(patient_id,appointment_id,cursor)=>{
       throw error;
     }
   }
-
-}
+};
 
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
@@ -628,8 +650,25 @@ const getDepartments = (cursor) => {
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-    console.log(fetchedRows);
-    return fetchedRows
+   // console.log(fetchedRows);
+   const departments=[]
+   fetchedRows.map(element=>{
+    const[
+      department_id,
+      department_name,
+      state,
+      city,
+      timezone
+    ]=element;
+    departments.push({
+      department_id,
+      department_name,
+      state,
+      city,
+      timezone
+    })
+   })
+    return departments;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -637,23 +676,23 @@ const getDepartments = (cursor) => {
   }
 };
 
-const getDepartmentName=(id,cursor)=>{
+const getDepartmentName = (id, cursor) => {
   const sQuery = `SELECT * FROM testProject.department where department_id=${id}`;
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-    console.log(fetchedRows)
-    var dept_name=fetchedRows.map(item=>{
-      if(item[0]===id) return item[1]
-    })
-    console.log(dept_name)
+    console.log(fetchedRows);
+    var dept_name = fetchedRows.map((item) => {
+      if (item[0] === id) return item[1];
+    });
+    console.log(dept_name);
     return dept_name[0];
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
     }
   }
-}
+};
 
 const addInsurances = async (id, res, cursor) => {
   try {
@@ -783,7 +822,7 @@ const getInsurances = (id, cursor) => {
         eligibilitylastchecked: eligibilitylastchecked,
       });
     });
-    console.log(allAppointments)
+    console.log(allAppointments);
     return allAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -792,9 +831,7 @@ const getInsurances = (id, cursor) => {
   }
 };
 
-const getPatientID=(cursor)=>{
-
-}
+const getPatientID = (cursor) => {};
 
 module.exports = {
   getPatient,
@@ -813,5 +850,5 @@ module.exports = {
   getAppointments,
   addInsurances,
   getInsurances,
-  createNewAppointment
+  createNewAppointment,
 };
