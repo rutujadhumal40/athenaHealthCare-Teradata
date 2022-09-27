@@ -2,10 +2,15 @@ const queries = require("./queries");
 const { setupAndRun } = require("./helpers");
 
 const cursor = setupAndRun();
-
 const getPatientDataFromAthena = async (req, res) => {
   await res.send(queries.getPatientDataFromAthena(cursor));
 };
+
+const createNewAppointment= async(req,res)=>{
+ // console.log("Patient id:",req.params.appointment_id)
+  console.log("Patient ID :")
+  await res.send(queries.createNewAppointment(req.params.patient_id,req.params.appointment_id,cursor));
+}
 
 const getPatient = (req, res) => {
   res.send(queries.getPatient(cursor));
@@ -53,9 +58,13 @@ const insertPatient = async (req, res) => {
 
 const addPatientAthena = async (req, res) => {
   console.log("Add Patient to Athena", req.body.values);
-  const data = req.body.values;
-  await queries.addPatientAthena(data, cursor);
-  return "SUCCESS";
+ const data = req.body.values;
+  // console.log(await queries.addPatientAthena (data, cursor));
+  const patient=await queries.addPatientAthena (data, cursor);
+  console.log("PatientID:",patient)
+  res.json({
+    patient_id: patient
+  })
 };
 const addDepartment = async (req, res) => {
   console.log("Add Departments");
@@ -91,6 +100,8 @@ const addInsurances = async (req, res) => {
 
 const getInsurances = async (req, res) => {
   console.log("Get Insurances", req.params.id);
+  if(typeof req.params.id===undefined)
+  return "Wrong Input Parameter";
   await res.send(queries.getInsurances(req.params.id, cursor));
   return "SUCCESS";
 };
@@ -112,4 +123,5 @@ module.exports = {
   getAppointments,
   addInsurances,
   getInsurances,
+  createNewAppointment
 };

@@ -34,5 +34,6 @@ router.get("/getDepartments", controller.getDepartments);
 router.post("/addPatientAthena", controller.addPatientAthena);
 
 router.post("/insertPatient", controller.insertPatient);
+router.get("/createNewAppointment/:patient_id/:appointment_id",controller.createNewAppointment)
 
 module.exports = router;

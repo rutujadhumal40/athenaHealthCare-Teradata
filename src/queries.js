@@ -59,7 +59,9 @@ const getPatientDataFromAthena = async (cursor) => {
     const dataFromEthena = await axios
       .get(`https://api.preview.platform.athenahealth.com/v1/195900/patients`, {
         headers: { Authorization: `Bearer ${accessToken}` },
-        params: { suffix: "Mr." },
+        params: { suffix: "Mr.",
+
+      },
       })
       .then((data) => {
         return data.data;
@@ -167,16 +169,16 @@ const addPatientAthena = async (data1, cursor) => {
       })
         .then((data) => {
           console.log(data);
-
-          console.log(data.data[0].patientid);
           data1 = { ...data1, patientid: data.data[0].patientid };
           insertPatient(data1, cursor);
+          return data.data[0].patientid;
         })
         .catch(function (err) {
           console.log("ERROR", err);
         });
       return data12;
     });
+    return updatedData;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -524,7 +526,7 @@ const getAppointments = (id, cursor) => {
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
     console.log(`${id}:`, fetchedRows);
-    fetchedRows.map((element) => {
+    fetchedRows.map(async (element) => {
       const [
         patientid,
         appointmentid,
@@ -553,6 +555,71 @@ const getAppointments = (id, cursor) => {
     }
   }
 };
+
+const createNewAppointment=(patient_id,appointment_id,cursor)=>{
+  let id=appointment_id.toString();
+  const sQuery = `select * from testProject.openAppointments where appointment_id=${id}`;
+  console.log(sQuery)
+  try {
+    cursor.execute(sQuery);
+    const allAppointments = [];
+    const fetchedRows = cursor.fetchall();
+   //console.log(fetchedRows)
+   const data12=[]
+   fetchedRows.map(item=>data12.push(
+    patient_id,
+    item[0],
+    item[1],
+    item[2],
+    item[3],
+    item[4],
+    item[5],
+    item[6]
+   ))
+   console.log("Data 12:",data12)
+    // fetchedRows.map(async (element1) => {
+    // element1.map( (element)=>{
+    //   allAppointments.push(
+    //   patient_id,
+    //   element.appointmentid,
+    //   getDepartmentName(element.departmentid,cursor),
+    //   element.appointmenttype,
+    //   element.providerid,
+    //   element.starttime,
+    //   element.duration,
+    //   element.date)
+    //    })
+    // });
+
+    //console.log("The fetched data is:", allAppointments);
+    // const data12=allAppointments.map(item=>{
+    //   data12.push(
+    //     item.patientid,
+    //     item.appointmentid,
+    //     item.departmentid,
+    //     item.appointmenttype,
+    //     item.providerid,
+    //     item.starttime,
+    //     item.duration
+    //   )
+    // })
+    cursor.execute(
+      "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
+      data12
+    );
+
+    // cursor.execute(
+    //   `delete from testProject.openAppointments where appointment_id=${appointment_id}`
+    // )
+
+    return data12;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+
+}
 
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
@@ -663,7 +730,7 @@ const getInsurances = (id, cursor) => {
     cursor.execute(sQuery);
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
-    console.log(`${id}:`, fetchedRows);
+    //console.log(`${id}:`, fetchedRows);
     fetchedRows.map((element) => {
       const [
         appointment_id,
@@ -716,6 +783,7 @@ const getInsurances = (id, cursor) => {
         eligibilitylastchecked: eligibilitylastchecked,
       });
     });
+    console.log(allAppointments)
     return allAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -723,6 +791,10 @@ const getInsurances = (id, cursor) => {
     }
   }
 };
+
+const getPatientID=(cursor)=>{
+
+}
 
 module.exports = {
   getPatient,
@@ -741,4 +813,5 @@ module.exports = {
   getAppointments,
   addInsurances,
   getInsurances,
+  createNewAppointment
 };
