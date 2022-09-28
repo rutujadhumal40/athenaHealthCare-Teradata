@@ -630,11 +630,53 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
       "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
       data12
     );
-
+    let appointments={}
     deleteOpenAppointment(appointment_id,cursor);
-
+      data12.map(element=>{
+        const[
+              patientid,
+              appointmentid,
+              departmentid,
+              appointmenttype,
+              providerid,
+              starttime,
+              duration
+            ]=element
+        appointments={
+          patientid,
+              appointmentid,
+              departmentid,
+              appointmenttype,
+              providerid,
+              starttime,
+              duration
+        }
+      })
    // console.log("Data Inserted in Appointments")
-    return data12;
+  // return data12;
+   //const appointments=[]
+  //  data12.map(element=>{
+  //   const[
+  //     patientid,
+  //     appointmentid,
+  //     departmentid,
+  //     appointmenttype,
+  //     providerid,
+  //     starttime,
+  //     duration
+  //   ]=element
+
+  //   appointments.push({
+  //     patientid,
+  //     appointmentid,
+  //     departmentid,
+  //     appointmenttype,
+  //     providerid,
+  //     starttime,
+  //     duration
+  //   })
+  //  })
+  return appointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
