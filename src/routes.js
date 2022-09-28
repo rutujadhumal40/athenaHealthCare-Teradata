@@ -24,6 +24,8 @@ router.post("/addOpenAppointments", controller.addOpenAppointments);
 router.post("/addAppointments/:id", controller.addAppointments);
 
 router.get("/getAppointments/:id", controller.getAppointments);
+router.get("/getAppointment/:patient_id/:appointment_id", controller.getAppointmentsById);
+
 
 router.post("/addInsurances/:id", controller.addInsurances);
 

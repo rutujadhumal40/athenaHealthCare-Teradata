@@ -50,6 +50,12 @@ const getAppointments = async (req, res) => {
   return "SUCCESS";
 };
 
+const getAppointmentsById= async (req,res) =>{
+  console.log("Get Appointments for a specific patient id and appointment id", req.params.patient_id, req.params.appointment_id);
+  await res.send(queries.getAppointmentsById(req.params.patient_id, req.params.appointment_id, cursor));
+
+}
+
 const insertPatient = async (req, res) => {
   console.log("Inserting Patient to Tera");
   var data = req.data;
@@ -123,5 +129,6 @@ module.exports = {
   getAppointments,
   addInsurances,
   getInsurances,
-  createNewAppointment
+  createNewAppointment,
+  getAppointmentsById
 };

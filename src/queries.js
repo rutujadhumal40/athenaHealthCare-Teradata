@@ -577,6 +577,45 @@ const getAppointments = (id, cursor) => {
   }
 };
 
+const getAppointmentsById = (patient_id, appointment_id, cursor) => {
+  //var dep_id=req.body.
+  var id = id;
+  const sQuery = `Select * from testProject.appointments where patient_id=${patient_id} and appointment_id=${appointment_id}`;
+  try {
+    cursor.execute(sQuery);
+    const allAppointments = [];
+    const fetchedRows = cursor.fetchall();
+   // console.log(`${id}:`, fetchedRows);
+    fetchedRows.map(async (element) => {
+      const [
+        patientid,
+        appointmentid,
+        departmentid,
+        appointmenttype,
+        providerid,
+        starttime,
+        duration,
+        date,
+      ] = element;
+      allAppointments.push({
+        patientid: patientid,
+        appointmentid: appointmentid,
+        departmentid: getDepartmentName(departmentid, cursor),
+        appointmenttype: appointmenttype,
+        providerid: providerid,
+        starttime: starttime,
+        duration: duration,
+        date: date,
+      });
+    });
+    return allAppointments;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
 const createNewAppointment = (patient_id, appointment_id, cursor) => {
   let id = appointment_id.toString();
   const sQuery = `select * from testProject.openAppointments where appointment_id=${id}`;
@@ -906,4 +945,5 @@ module.exports = {
   addInsurances,
   getInsurances,
   createNewAppointment,
+  getAppointmentsById
 };
