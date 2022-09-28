@@ -631,10 +631,9 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
       data12
     );
 
-    // cursor.execute(
-    //   `delete from testProject.openAppointments where appointment_id=${appointment_id}`
-    // )
+    deleteOpenAppointment(appointment_id,cursor);
 
+   // console.log("Data Inserted in Appointments")
     return data12;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -642,6 +641,20 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
     }
   }
 };
+
+const deleteOpenAppointment=(appointment_id,cursor)=>{
+  try{
+    cursor.execute(
+      `delete from testProject.openAppointments where appointment_id=${appointment_id}`
+    )
+    console.log(`Appointment for ${appointment_id} deleted`)
+  }
+  catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+}
 
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
