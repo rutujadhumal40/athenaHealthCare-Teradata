@@ -4,6 +4,8 @@ const utils = require("../utils");
 const { default: axios } = require("axios");
 const { all } = require("./routes");
 
+//Error Handlers
+
 const anIgnoreError = (error) => {
   var ignoreErrorCodes = [
     3526, // The specified index does not exist.
@@ -50,6 +52,44 @@ const getErrorCode = (msg) => {
     errorCode = found[1];
   }
   return parseInt(errorCode, 10);
+};
+
+//Patient
+
+const addPatientAthena = async (data1, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      console.log("Request Body Data:", data1);
+      const abc = `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`;
+      console.log("abc", abc);
+      const accessToken = data.access_token;
+      const data12 = await axios({
+        method: "post",
+        url: `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
+        data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=11/22/2003&status=${data1.status}&state=${data1.state}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "content-type": "application/x-www-form-urlencoded",
+        },
+      })
+        .then((data) => {
+          console.log(data);
+          data1 = { ...data1, patientid: data.data[0].patientid };
+          insertPatient(data1, cursor);
+          return data.data[0].patientid;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    return updatedData;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
 };
 
 const getPatientDataFromAthena = async (cursor) => {
@@ -133,80 +173,6 @@ const getPatientPrivacyInfo = (id, cursor) => {
   }
 };
 
-const getOpenAppointments = (id, cursor) => {
-  var id = id;
-  const sQuery = `Select * from testProject.openAppointments where department_id=${id}`;
-  try {
-    cursor.execute(sQuery);
-    const fetchedRows = cursor.fetchall();
-    console.log(`${id}:`, fetchedRows);
-    const allOpenAppointments=[]
-    fetchedRows.map((element) => {
-      const [
-        appointment_id,
-        department_id,
-        appointment_type,
-        provider_id,
-        start_time,
-        duration,
-        date,
-      ] = element;
-      allOpenAppointments.push({
-        appointment_id,
-        department_id,
-        appointment_type,
-        provider_id,
-        start_time,
-        duration,
-        date,        
-      })
-
-    });
-    console.log("Open Appointmnets",allOpenAppointments)
-    return allOpenAppointments;
-  } catch (error) {
-    if (!anIgnoreError(error)) {
-      throw error;
-    }
-  }
-};
-
-const addPatientAthena = async (data1, cursor) => {
-  try {
-    const updatedData = await utils.get_access_token().then(async (data) => {
-      console.log("EPIC_access_token", data);
-      console.log("Request Body Data:", data1);
-      const abc = `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`;
-      console.log("abc", abc);
-      const accessToken = data.access_token;
-      const data12 = await axios({
-        method: "post",
-        url: `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
-        data: `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=11/22/2003&status=${data1.status}&state=${data1.state}`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "content-type": "application/x-www-form-urlencoded",
-        },
-      })
-        .then((data) => {
-          console.log(data);
-          data1 = { ...data1, patientid: data.data[0].patientid };
-          insertPatient(data1, cursor);
-          return data.data[0].patientid;
-        })
-        .catch(function (err) {
-          console.log("ERROR", err);
-        });
-      return data12;
-    });
-    return updatedData;
-  } catch (error) {
-    if (!anIgnoreError(error)) {
-      throw error;
-    }
-  }
-};
-
 const insertPatient = async (data, cursor) => {
   const sQuery = `insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)`;
 
@@ -260,29 +226,8 @@ const addPatient = async (req, res, cursor) => {
     });
     var data12 = [];
     var balance = [];
-
-    /*  await updatedData.map((item) => {
-      data12.push([item.suffix, item.firstname, item.lastname, item.status]);
-    });  */
     await updatedData.map(async (item) => {
-      //var obj={patientid: item.patientid}
-      //balance.push(obj)
-      //await item.balances.push(obj)
-      //await balance.push(item.balances)
-      /* item.donotcall==true ? item.donotcall=1:item.donotcall=0
-     item.driverslicense==true ? item.driverslicense=1:item.driverslicense=0
-     item.contactpreference_announcement_phone==true ? item.contactpreference_announcement_phone=1:item.contactpreference_announcement_phone=0
-     item.guarantoraddresssameaspatient==true ? item.guarantoraddresssameaspatient=1:item.guarantoraddresssameaspatient=0
-     item.portaltermsonfile==true ? item.portaltermsonfile=1:item.portaltermsonfile=0
-     item.privacyinformationverified==true ? item.privacyinformationverified=1:item.privacyinformationverified=0
-     item.emailexists==true ? item.emailexists=1:item.emailexists=0
-     item.patientphoto==true ? item.patientphoto=1:item.patientphoto=0
-     item.consenttotext==true ? item.consenttotext=1:item.consenttotext=0
-     item.contactpreference_lab_phone==true ? item.contactpreference_lab_phone=1:item.contactpreference_lab_phone=0
- */
-
       console.log(item.balances);
-
       data12.push([
         item.patientid,
         item.firstname,
@@ -298,7 +243,6 @@ const addPatient = async (req, res, cursor) => {
         item.status,
       ]);
     });
-
     console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)",
@@ -312,129 +256,39 @@ const addPatient = async (req, res, cursor) => {
   }
 };
 
-const addBalances = async (req, res, cursor) => {
-  try {
-    const updatedData = await utils.get_access_token().then(async (data) => {
-      console.log("EPIC_access_token", data);
-      const accessToken = data.access_token;
-      const data12 = await axios
-        .get(
-          `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            params: { suffix: "Mr." },
-          }
-        )
-        .then((data) => {
-          return data.data.patients;
-        })
-        .catch(function (err) {
-          console.log("ERROR", err);
-        });
-      return data12;
-    });
-    var data12 = [];
-    await updatedData.map(async (item1) => {
-      item1.balances.map((item) => {
-        data12.push([
-          item1.patientid,
-          item.balance.toString(),
-          (item.cleanbalance = true
-            ? (item.cleanbalance = 1)
-            : (item.cleanbalance = 0)),
-          item.providergroupid.toString(),
-        ]);
-      });
+//Appointments
 
-      //   data12.push([
-      //     item.patientid,
-      // item.firstname,
-      // item.lastname,
-      // item.suffix,
-      // item.countrycode,
-      // item.state,
-      // item.homephone,
-      // item.mobilephone,
-      // item.zip,
-      // item.dob,
-      // item.departmentid,
-      // item.status,
-      //   ]);
-    });
-
-    console.log("The fetched data is:", data12);
-    await cursor.execute("insert into testProject.balance (?, ?, ?,?)", data12);
-    res.send("SUCCESS");
-  } catch (error) {
-    if (!anIgnoreError(error)) {
-      throw error;
-    }
-  }
-};
-
-const getBalance = (id, cursor) => {
-  //var dep_id=req.body.
-  const sQuery = `Select * from testProject.balance where patient_id=${id}`;
-  const allBalance = [];
+const getOpenAppointments = (id, cursor) => {
+  var id = id;
+  const sQuery = `Select * from testProject.openAppointments where department_id=${id}`;
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
     console.log(`${id}:`, fetchedRows);
+    const allOpenAppointments=[]
     fetchedRows.map((element) => {
-      const [patient_id, balance, cleanbalance, providergroupid] = element;
-      allBalance.push({
-        patient_id: patient_id,
-        balance: balance,
-        cleanbalance: cleanbalance,
-        providergroupid: providergroupid,
-      });
-    });
-    console.log(allBalance);
-    return allBalance;
-  } catch (error) {
-    if (!anIgnoreError(error)) {
-      throw error;
-    }
-  }
-};
+      const [
+        appointment_id,
+        department_id,
+        appointment_type,
+        provider_id,
+        start_time,
+        duration,
+        date,
+      ] = element;
+      allOpenAppointments.push({
+        appointment_id,
+        department_id,
+        appointment_type,
+        provider_id,
+        start_time,
+        duration,
+        date,        
+      })
 
-const addDepartment = async (req, res, cursor) => {
-  try {
-    const updatedData = await utils.get_access_token().then(async (data) => {
-      console.log("EPIC_access_token", data);
-      const accessToken = data.access_token;
-      const data12 = await axios
-        .get(
-          `https://api.preview.platform.athenahealth.com/v1/195900/departments`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        )
-        .then((data) => {
-          return data.data.departments;
-        })
-        .catch(function (err) {
-          console.log("ERROR", err);
-        });
-      return data12;
     });
-    var data12 = [];
-    await updatedData.map(async (item) => {
-      data12.push([
-        item.departmentid,
-        item.name,
-        item.state,
-        item.city,
-        item.timezonename,
-      ]);
-    });
-
-    console.log("The fetched data is:", data12);
-    await cursor.execute(
-      "insert into testProject.department (?, ?, ?, ?,?)",
-      data12
-    );
-    res.send("SUCCESS");
+    console.log("Open Appointmnets",allOpenAppointments)
+    return allOpenAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -539,7 +393,6 @@ const addAppointments = async (id, res, cursor) => {
 };
 
 const getAppointments = (id, cursor) => {
-  //var dep_id=req.body.
   var id = id;
   const sQuery = `Select * from testProject.appointments where patient_id=${id}`;
   try {
@@ -624,7 +477,6 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
     cursor.execute(sQuery);
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
-    //console.log(fetchedRows)
     const data12 = [];
     fetchedRows.map((item) =>
       data12.push(
@@ -639,32 +491,6 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
       )
     );
     console.log("Data 12:", data12);
-    // fetchedRows.map(async (element1) => {
-    // element1.map( (element)=>{
-    //   allAppointments.push(
-    //   patient_id,
-    //   element.appointmentid,
-    //   getDepartmentName(element.departmentid,cursor),
-    //   element.appointmenttype,
-    //   element.providerid,
-    //   element.starttime,
-    //   element.duration,
-    //   element.date)
-    //    })
-    // });
-
-    //console.log("The fetched data is:", allAppointments);
-    // const data12=allAppointments.map(item=>{
-    //   data12.push(
-    //     item.patientid,
-    //     item.appointmentid,
-    //     item.departmentid,
-    //     item.appointmenttype,
-    //     item.providerid,
-    //     item.starttime,
-    //     item.duration
-    //   )
-    // })
     cursor.execute(
       "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
       data12
@@ -691,30 +517,6 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
               duration
         }
       })
-   // console.log("Data Inserted in Appointments")
-  // return data12;
-   //const appointments=[]
-  //  data12.map(element=>{
-  //   const[
-  //     patientid,
-  //     appointmentid,
-  //     departmentid,
-  //     appointmenttype,
-  //     providerid,
-  //     starttime,
-  //     duration
-  //   ]=element
-
-  //   appointments.push({
-  //     patientid,
-  //     appointmentid,
-  //     departmentid,
-  //     appointmenttype,
-  //     providerid,
-  //     starttime,
-  //     duration
-  //   })
-  //  })
   return appointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -736,6 +538,139 @@ const deleteOpenAppointment=(appointment_id,cursor)=>{
     }
   }
 }
+
+//Balances
+
+const addBalances = async (req, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/patients`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            params: { suffix: "Mr." },
+          }
+        )
+        .then((data) => {
+          return data.data.patients;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item1) => {
+      item1.balances.map((item) => {
+        data12.push([
+          item1.patientid,
+          item.balance.toString(),
+          (item.cleanbalance = true
+            ? (item.cleanbalance = 1)
+            : (item.cleanbalance = 0)),
+          item.providergroupid.toString(),
+        ]);
+      });
+
+      //   data12.push([
+      //     item.patientid,
+      // item.firstname,
+      // item.lastname,
+      // item.suffix,
+      // item.countrycode,
+      // item.state,
+      // item.homephone,
+      // item.mobilephone,
+      // item.zip,
+      // item.dob,
+      // item.departmentid,
+      // item.status,
+      //   ]);
+    });
+
+    console.log("The fetched data is:", data12);
+    await cursor.execute("insert into testProject.balance (?, ?, ?,?)", data12);
+    res.send("SUCCESS");
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+const getBalance = (id, cursor) => {
+  //var dep_id=req.body.
+  const sQuery = `Select * from testProject.balance where patient_id=${id}`;
+  const allBalance = [];
+  try {
+    cursor.execute(sQuery);
+    const fetchedRows = cursor.fetchall();
+    console.log(`${id}:`, fetchedRows);
+    fetchedRows.map((element) => {
+      const [patient_id, balance, cleanbalance, providergroupid] = element;
+      allBalance.push({
+        patient_id: patient_id,
+        balance: balance,
+        cleanbalance: cleanbalance,
+        providergroupid: providergroupid,
+      });
+    });
+    console.log(allBalance);
+    return allBalance;
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
+
+//Departments
+const addDepartment = async (req, res, cursor) => {
+  try {
+    const updatedData = await utils.get_access_token().then(async (data) => {
+      console.log("EPIC_access_token", data);
+      const accessToken = data.access_token;
+      const data12 = await axios
+        .get(
+          `https://api.preview.platform.athenahealth.com/v1/195900/departments`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        )
+        .then((data) => {
+          return data.data.departments;
+        })
+        .catch(function (err) {
+          console.log("ERROR", err);
+        });
+      return data12;
+    });
+    var data12 = [];
+    await updatedData.map(async (item) => {
+      data12.push([
+        item.departmentid,
+        item.name,
+        item.state,
+        item.city,
+        item.timezonename,
+      ]);
+    });
+
+    console.log("The fetched data is:", data12);
+    await cursor.execute(
+      "insert into testProject.department (?, ?, ?, ?,?)",
+      data12
+    );
+    res.send("SUCCESS");
+  } catch (error) {
+    if (!anIgnoreError(error)) {
+      throw error;
+    }
+  }
+};
 
 const getDepartments = (cursor) => {
   // const sQuery = "SELECT * FROM testProject.testPatient";
@@ -787,6 +722,8 @@ const getDepartmentName = (id, cursor) => {
     }
   }
 };
+
+//Insurances
 
 const addInsurances = async (id, res, cursor) => {
   try {
@@ -856,7 +793,6 @@ const addInsurances = async (id, res, cursor) => {
 };
 
 const getInsurances = (id, cursor) => {
-  //var dep_id=req.body.
   var id = id;
   const sQuery = `Select * from testProject.insurances where appointment_id=${id}`;
   try {
@@ -925,8 +861,6 @@ const getInsurances = (id, cursor) => {
   }
 };
 
-const getPatientID = (cursor) => {};
-
 module.exports = {
   getPatient,
   addPatient,
@@ -936,7 +870,6 @@ module.exports = {
   getDepartments,
   addOpenAppointments,
   getOpenAppointments,
-  //insertPatient
   addPatientAthena,
   addBalances,
   getBalance,
