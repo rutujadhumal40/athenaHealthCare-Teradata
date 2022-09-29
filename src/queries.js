@@ -62,7 +62,6 @@ const addPatientAthena = async (data1, cursor) => {
       console.log("EPIC_access_token", data);
       console.log("Request Body Data:", data1);
       const abc = `suffix=${data1.suffix}&firstname=${data1.first_name}&lastname=${data1.last_name}&departmentid=${data1.department_id}&countrycode3166=${data1.country_code}&zip=${data1.zip}&dob=${data1.dob}&status=${data1.status}&state=${data1.state}`;
-      console.log("abc", abc);
       const accessToken = data.access_token;
       const data12 = await axios({
         method: "post",
@@ -74,7 +73,6 @@ const addPatientAthena = async (data1, cursor) => {
         },
       })
         .then((data) => {
-          console.log(data);
           data1 = { ...data1, patientid: data.data[0].patientid };
           insertPatient(data1, cursor);
           return data.data[0].patientid;
@@ -121,9 +119,9 @@ const getPatient = (cursor) => {
     fetchedRows.forEach((element) => {
       const [
         patient_id,
+        suffix,
         first_name,
         last_name,
-        suffix,
         country_code,
         state,
         homephone,
@@ -148,8 +146,6 @@ const getPatient = (cursor) => {
         status: status,
       });
     });
-    console.log(allPatient);
-
     return allPatient;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -159,7 +155,6 @@ const getPatient = (cursor) => {
 };
 
 const getPatientPrivacyInfo = (id, cursor) => {
-  var id = id;
   const sQuery = `Select * from testProject.patientPrivacyInfo where patient_id=${id}`;
   try {
     cursor.execute(sQuery);
@@ -179,18 +174,17 @@ const insertPatient = async (data, cursor) => {
   const data12 = [];
   data12.push([
     data.patientid,
-    data.suffix,
     data.first_name,
     data.last_name,
+    data.suffix,
     data.country_code,
     data.state,
     data.home_phone,
     data.mobile_phone,
     data.zip,
-    //data.dob,
+    data.dob,
     data.department_id,
     data.status,
-    data.state,
   ]);
   try {
     cursor.execute(sQuery, data12);
@@ -225,7 +219,6 @@ const addPatient = async (req, res, cursor) => {
       return data12;
     });
     var data12 = [];
-    var balance = [];
     await updatedData.map(async (item) => {
       console.log(item.balances);
       data12.push([
@@ -243,7 +236,6 @@ const addPatient = async (req, res, cursor) => {
         item.status,
       ]);
     });
-    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.testPatientComplete (?, ?, ?, ?,?,?,?,?,?,?,?,?)",
       data12
@@ -259,13 +251,11 @@ const addPatient = async (req, res, cursor) => {
 //Appointments
 
 const getOpenAppointments = (id, cursor) => {
-  var id = id;
   const sQuery = `Select * from testProject.openAppointments where department_id=${id}`;
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-    console.log(`${id}:`, fetchedRows);
-    const allOpenAppointments=[]
+    const allOpenAppointments = [];
     fetchedRows.map((element) => {
       const [
         appointment_id,
@@ -283,11 +273,9 @@ const getOpenAppointments = (id, cursor) => {
         provider_id,
         start_time,
         duration,
-        date,        
-      })
-
+        date,
+      });
     });
-    console.log("Open Appointmnets",allOpenAppointments)
     return allOpenAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -329,8 +317,6 @@ const addOpenAppointments = async (req, res, cursor) => {
         item.date,
       ]);
     });
-
-    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.openAppointments (?, ?, ?, ?,?,?,?)",
       data12
@@ -357,7 +343,6 @@ const addAppointments = async (id, res, cursor) => {
           }
         )
         .then((data) => {
-          console.log(data);
           return data.data.appointments;
         })
         .catch(function (err) {
@@ -378,8 +363,6 @@ const addAppointments = async (id, res, cursor) => {
         item.date,
       ]);
     });
-
-    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
       data12
@@ -393,13 +376,11 @@ const addAppointments = async (id, res, cursor) => {
 };
 
 const getAppointments = (id, cursor) => {
-  var id = id;
   const sQuery = `Select * from testProject.appointments where patient_id=${id}`;
   try {
     cursor.execute(sQuery);
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
-    console.log(`${id}:`, fetchedRows);
     fetchedRows.map(async (element) => {
       const [
         patientid,
@@ -431,14 +412,11 @@ const getAppointments = (id, cursor) => {
 };
 
 const getAppointmentsById = (patient_id, appointment_id, cursor) => {
-  //var dep_id=req.body.
-  var id = id;
   const sQuery = `Select * from testProject.appointments where patient_id=${patient_id} and appointment_id=${appointment_id}`;
   try {
     cursor.execute(sQuery);
     const allAppointments = [];
     const fetchedRows = cursor.fetchall();
-   // console.log(`${id}:`, fetchedRows);
     fetchedRows.map(async (element) => {
       const [
         patientid,
@@ -472,7 +450,6 @@ const getAppointmentsById = (patient_id, appointment_id, cursor) => {
 const createNewAppointment = (patient_id, appointment_id, cursor) => {
   let id = appointment_id.toString();
   const sQuery = `select * from testProject.openAppointments where appointment_id=${id}`;
-  console.log(sQuery);
   try {
     cursor.execute(sQuery);
     const allAppointments = [];
@@ -490,34 +467,33 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
         item[6]
       )
     );
-    console.log("Data 12:", data12);
     cursor.execute(
       "insert into testProject.appointments (?, ?, ?, ?,?,?,?,?)",
       data12
     );
-    let appointments={}
-    deleteOpenAppointment(appointment_id,cursor);
-      data12.map(element=>{
-        const[
-              patientid,
-              appointmentid,
-              departmentid,
-              appointmenttype,
-              providerid,
-              starttime,
-              duration
-            ]=element
-        appointments={
-          patientid,
-              appointmentid,
-              departmentid,
-              appointmenttype,
-              providerid,
-              starttime,
-              duration
-        }
-      })
-  return appointments;
+    let appointments = {};
+    deleteOpenAppointment(appointment_id, cursor);
+    data12.map((element) => {
+      const [
+        patientid,
+        appointmentid,
+        departmentid,
+        appointmenttype,
+        providerid,
+        starttime,
+        duration,
+      ] = element;
+      appointments = {
+        patientid,
+        appointmentid,
+        departmentid,
+        appointmenttype,
+        providerid,
+        starttime,
+        duration,
+      };
+    });
+    return appointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
@@ -525,19 +501,18 @@ const createNewAppointment = (patient_id, appointment_id, cursor) => {
   }
 };
 
-const deleteOpenAppointment=(appointment_id,cursor)=>{
-  try{
+const deleteOpenAppointment = (appointment_id, cursor) => {
+  try {
     cursor.execute(
       `delete from testProject.openAppointments where appointment_id=${appointment_id}`
-    )
-    console.log(`Appointment for ${appointment_id} deleted`)
-  }
-  catch (error) {
+    );
+    console.log(`Appointment for ${appointment_id} deleted`);
+  } catch (error) {
     if (!anIgnoreError(error)) {
       throw error;
     }
   }
-}
+};
 
 //Balances
 
@@ -574,24 +549,7 @@ const addBalances = async (req, res, cursor) => {
           item.providergroupid.toString(),
         ]);
       });
-
-      //   data12.push([
-      //     item.patientid,
-      // item.firstname,
-      // item.lastname,
-      // item.suffix,
-      // item.countrycode,
-      // item.state,
-      // item.homephone,
-      // item.mobilephone,
-      // item.zip,
-      // item.dob,
-      // item.departmentid,
-      // item.status,
-      //   ]);
     });
-
-    console.log("The fetched data is:", data12);
     await cursor.execute("insert into testProject.balance (?, ?, ?,?)", data12);
     res.send("SUCCESS");
   } catch (error) {
@@ -602,7 +560,6 @@ const addBalances = async (req, res, cursor) => {
 };
 
 const getBalance = (id, cursor) => {
-  //var dep_id=req.body.
   const sQuery = `Select * from testProject.balance where patient_id=${id}`;
   const allBalance = [];
   try {
@@ -618,7 +575,6 @@ const getBalance = (id, cursor) => {
         providergroupid: providergroupid,
       });
     });
-    console.log(allBalance);
     return allBalance;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -658,8 +614,6 @@ const addDepartment = async (req, res, cursor) => {
         item.timezonename,
       ]);
     });
-
-    console.log("The fetched data is:", data12);
     await cursor.execute(
       "insert into testProject.department (?, ?, ?, ?,?)",
       data12
@@ -673,30 +627,22 @@ const addDepartment = async (req, res, cursor) => {
 };
 
 const getDepartments = (cursor) => {
-  // const sQuery = "SELECT * FROM testProject.testPatient";
   const sQuery = `SELECT * FROM testProject.department`;
 
   try {
     cursor.execute(sQuery);
     const fetchedRows = cursor.fetchall();
-   // console.log(fetchedRows);
-   const departments=[]
-   fetchedRows.map(element=>{
-    const[
-      department_id,
-      department_name,
-      state,
-      city,
-      timezone
-    ]=element;
-    departments.push({
-      department_id,
-      department_name,
-      state,
-      city,
-      timezone
-    })
-   })
+    const departments = [];
+    fetchedRows.map((element) => {
+      const [department_id, department_name, state, city, timezone] = element;
+      departments.push({
+        department_id,
+        department_name,
+        state,
+        city,
+        timezone,
+      });
+    });
     return departments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -774,8 +720,6 @@ const addInsurances = async (id, res, cursor) => {
         item.eligibilitylastchecked,
       ]);
     });
-
-    console.log("The fetched data is:", data12);
     if (data12.length === 0) {
       res.send("Nothing to Insert.");
     } else {
@@ -852,7 +796,6 @@ const getInsurances = (id, cursor) => {
         eligibilitylastchecked: eligibilitylastchecked,
       });
     });
-    console.log(allAppointments);
     return allAppointments;
   } catch (error) {
     if (!anIgnoreError(error)) {
@@ -878,5 +821,5 @@ module.exports = {
   addInsurances,
   getInsurances,
   createNewAppointment,
-  getAppointmentsById
+  getAppointmentsById,
 };
