@@ -1,10 +1,8 @@
 const queries = require("./queries");
 const { setupAndRun } = require("./helpers");
-
 const cursor = setupAndRun();
 
 //Patients
-
 const getPatientDataFromAthena = async (req, res) => {
   const result = await res.send(queries.getPatientDataFromAthena(cursor));
   return result;
@@ -39,7 +37,6 @@ const addPatientAthena = async (req, res) => {
 };
 
 //Appointments
-
 const createNewAppointment = async (req, res) => {
   const result = await res.send(
     queries.createNewAppointment(
@@ -85,7 +82,6 @@ const getAppointmentsById = async (req, res) => {
 };
 
 //Departments
-
 const addDepartment = async (req, res) => {
   const result = await queries.addDepartment(req, res, cursor);
   return result;
@@ -97,7 +93,6 @@ const getDepartments = async (req, res) => {
 };
 
 //Balances
-
 const addBalances = async (req, res) => {
   const result = await queries.addBalances(req, res, cursor);
   return result;
@@ -109,7 +104,6 @@ const getBalance = async (req, res) => {
 };
 
 //Insurances
-
 const addInsurances = async (req, res) => {
   const result = await queries.addInsurances(req.params.id, res, cursor);
   return result;
