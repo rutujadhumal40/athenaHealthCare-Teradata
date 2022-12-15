@@ -14,9 +14,10 @@ const setupAndRun = () => {
         var teradataConnection = new TeradataConnection.TeradataConnection();
         var cursor = teradataConnection.cursor();
         teradataConnection.connect(connParams);
-
+       // console.log("Connected!")
+        // teradataConnection.close();
+        // console.log("Close Success!");
         return cursor;
-
         // teradataConnection.close();
     } catch (error) {
         if (!anIgnoreError(error)) {
